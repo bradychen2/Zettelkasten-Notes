@@ -22,8 +22,8 @@ Use this when you’re writing notes that:
 
 ## Core format rules
 
-1. **One note = one main question**
-   - Put the question in the H1 title (e.g. “What’s an anti-corruption layer pattern”).
+1. **One note = one main topic**
+   - Put the topic in the H1 title (e.g. “What’s an anti-corruption layer pattern”).
 2. **Keep “purpose/why” near the top**
    - Readers should get value within 10–20 seconds.
 3. **Citations should be short in-body**
@@ -31,7 +31,7 @@ Use this when you’re writing notes that:
 4. **References must be verbatim (no paraphrases)**
    - Each reference item should quote the source _verbatim_ (a sentence or short excerpt), not your summary.
    - Keep quoted excerpts short (prefer ≤25 words) and include page/section info.
-   - You should check the page/section info correctness, which should be exactly match the original source. (e.g. the page number should be correct)
+   - The page/section info should be correct, which must be exactly match the original source. (e.g. the page number should be correct)
 5. **References must be stable**
    - Every reference item gets a unique `^ref-...` block ID and you don’t change it later.
 6. **Reference numbers are for readability**
@@ -41,7 +41,7 @@ Use this when you’re writing notes that:
 
 Recommended headings (adjust as needed, but keep ordering consistent):
 
-- `## TL;DR` (optional but recommended)
+- `## Abstract` (optional but recommended)
 - `## Purposes` (or `## Key Takeaways`)
 - `## Definition` (optional)
 - `## When to Use` (optional)
@@ -49,7 +49,6 @@ Recommended headings (adjust as needed, but keep ordering consistent):
 - `## How It Works` (optional)
 - `## Example` / `## Implementation Notes`
 - `## Pitfalls` (optional)
-- `## Checklist` (optional)
 - `## References`
 
 ## In-text citation pattern (Obsidian)
@@ -81,14 +80,23 @@ In sections like `## Purposes`, cite like this:
 
 ### Extremely Important (Top Priority)
 
-- All important information must be included. If sentence length is to be adjusted, the importance of the information should be the top priority.
+- All important information must be included. If sentence length is to be adjusted, the key concepts/keywords of the information should be the top priority.
+- Preserve the key concepts and keywords but not to copy and paste the original sentences cuz this is not the references section.
+- Always ask users would like a English/Chinese/Bilingual note before generating
 
 ### guidelines
 
-- Prefer **numbered lists** for “Purposes/Takeaways” (3–6 points).
-- Keep each point to be concise when possible, but still should contain all the important info and keywords:
-  - Line 1: English statement + citation
-  - Line 2: Traditional Chinese translation as a blockquote (always writing bilingual notes, only if explicitly say no), e.g. `> ...`
+- Prefer **numbered lists** for "Purposes/Takeaways" (3–6 points).
+- Prefer **numbered lists** for any section includes "Flow"
+- Keep each point to be concise when possible, but still should contain all the important info and
+  keywords:
+  - For English doc:
+    - Line 1: English statement + citation
+  - For Traditional Chinese doc:
+    - Line 1: Chinese statement + citation
+  - For bilingual doc:
+    - Line 1: English statement + citation
+    - Line 2: Traditional Chinese translation as a blockquote, e.g. `> ...`
 - When keeping concise contradicts the importance, should still follow the top priority rule
 - Use consistent phrasing:
   - Start purposes with verbs (Reduce…, Enable…, Decouple…, Support…).
@@ -110,7 +118,7 @@ updated: YYYY-MM-DD
 
 # <Question-style title>
 
-## TL;DR
+## Abstract
 
 - <3 bullets max>
 
@@ -136,12 +144,6 @@ updated: YYYY-MM-DD
 
 - <bullets>
 
-## Checklist
-
-- [ ] Purposes list is 3–6 points
-- [ ] Every non-trivial claim cites a `^ref-...`
-- [ ] References are numbered and block IDs are stable
-
 ## References
 
 1. "<Verbatim quote from source (keep it short)>". (<source>, p. X) ^ref-...
@@ -150,7 +152,7 @@ updated: YYYY-MM-DD
 ## Quick QA checklist (before you consider the note “done”)
 
 - Is the H1 a question you would actually search later?
-- Can you understand the note by reading only `## TL;DR` + `## Purposes`?
+- Can you understand the note by reading only `## Abstract` + `## Purposes`?
 - Do the citations have correct page number and verbatim contents from the original source?
 - Are citations consistent (`[[#^ref-...|n]]`) and do they jump to the right spot?
 - Are reference block IDs stable and unique (`^ref-...`)?
