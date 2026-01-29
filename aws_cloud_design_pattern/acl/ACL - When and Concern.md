@@ -28,7 +28,7 @@ source: aws-cloud-design-patterns.pdf
 ## 顧慮 / 權衡
 
 - 維運開銷：多了一層需要部署、監控、告警、發布與維護。[[#^ref-concern-ops-overhead|5]]
-- 單點故障：ACL 掛掉可能直接讓目標服務不可達。[[#^ref-concern-spof|6]]
+- 單點故障 SPOF：ACL 掛掉可能直接讓目標服務不可達。[[#^ref-concern-spof|6]]
 - 延遲增加：多一次網路跳轉與轉換處理。[[#^ref-concern-latency|7]]
 - 實作選擇的複雜度：需要決定 ACL 要做成共用元件或服務專用類別，會影響設計與維護。[[#^ref-concern-impl-choice|17]]
 - 擴展瓶頸：若 ACL 無法跟著流量/目標服務一起擴展，容易成為效能瓶頸。[[#^ref-concern-scaling|8]]
