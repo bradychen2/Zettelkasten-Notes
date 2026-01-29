@@ -36,7 +36,7 @@ source: aws-cloud-design-patterns.pdf
 
 ## 緩解措施 / 最佳實踐
 
-- 在 ACL 內建韌性：重試機制與斷路器（Circuit Breaker）。[[#^ref-mitigate-retry-cb|10]]
+- 在 ACL 內建韌性：重試機制與[[什麼是斷路器（Circuit Breaker）模式？|斷路器（Circuit Breaker）]]。[[#^ref-mitigate-retry-cb|10]]
 - 強化可觀測性：日誌與告警，縮短 MTTR。[[#^ref-mitigate-logging-alerting|11]]
 - 上線前先定義並測試效能/延遲容忍度（尤其是對延遲敏感的系統）。[[#^ref-mitigate-perf-tolerance|12]]
 - 讓 ACL 具備可擴展性，並能隨目標服務/流量同步擴展。[[#^ref-mitigate-scale-with-service|13]]
