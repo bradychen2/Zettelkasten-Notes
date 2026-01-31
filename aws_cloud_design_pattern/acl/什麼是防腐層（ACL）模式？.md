@@ -1,5 +1,6 @@
 ---
 title: 什麼是防腐層（ACL）模式？
+tags: [reading-note, architecture, ddd, patterns]
 ---
 # 什麼是防腐層（ACL）模式？
 
