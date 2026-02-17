@@ -28,13 +28,17 @@ Use this when you’re writing notes that:
    - Readers should get value within 10–20 seconds.
 3. **Citations should be short in-body**
    - Don’t repeat full source names/pages inline; store that detail in `## References`.
-4. **References must be verbatim (no paraphrases)**
+4. **Add `## Related Notes` to link the vault**
+   - Place `## Related Notes` after `## Pitfalls` (if exists) and before `## References`.
+   - Use Obsidian wikilinks, preferably with vault-relative paths to avoid name collisions:
+     - `[[folder/note|Display Text]]`
+5. **References must be verbatim (no paraphrases)**
    - Each reference item should quote the source _verbatim_ (a sentence or short excerpt), not your summary.
    - Keep quoted excerpts short (prefer ≤25 words) and include page/section info.
    - The page/section info should be correct, which must be exactly match the original source. (e.g. the page number should be correct)
-5. **References must be stable**
+6. **References must be stable**
    - Every reference item gets a unique `^ref-...` block ID and you don’t change it later.
-6. **Reference numbers are for readability**
+7. **Reference numbers are for readability**
    - You may reorder reference list numbering over time; the block IDs remain stable.
 
 ## Canonical note skeleton
@@ -49,7 +53,16 @@ Recommended headings (adjust as needed, but keep ordering consistent):
 - `## How It Works` (optional)
 - `## Example` / `## Implementation Notes`
 - `## Pitfalls` (optional)
+- `## Related Notes` (optional but recommended)
 - `## References`
+
+## Special Case: Chat / Transcript Sources
+
+When the source is a chat session or a captured transcript (e.g. exported text, scraped page text):
+
+- In `## References`, you may cite locations as `(body.txt line N)` (or similar) to keep references precise and auditable.
+- In frontmatter, add `source_artifact:` pointing to the captured file path (e.g. `/.tmp/.../body.txt`) for traceability.
+- In frontmatter, add `source_id:` if there is a stable identifier (e.g. share id, doc id).
 
 ## In-text citation pattern (Obsidian)
 
@@ -103,6 +116,13 @@ In sections like `## Purposes`, cite like this:
 - Keep “what” separate from “how”:
   - “Purposes” = why it matters
   - “Example/Implementation Notes” = how to do it
+- Tags: each note should include at least one domain tag (in addition to `reading-note`), e.g. `aws`, `vpc`, `ec2`, `security-group`, `api-gateway`.
+
+## Splitting Rule (One Topic, Many Notes)
+
+Use one note to answer one searchable question.
+
+If a draft note starts to include multiple distinct areas (especially `Definition + Flow + Troubleshooting + Architecture`), split it into multiple notes and connect them via `## Related Notes`.
 
 ## Template you can paste
 
@@ -112,6 +132,9 @@ title: <Question-style title>
 tags: [reading-note]
 status: draft
 source: <optional: primary source name>
+source_id: <optional: share id / doc id>
+source_artifact: <optional: /.tmp/.../body.txt>
+language: <en | zh-tw | bilingual>
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 ---
@@ -144,6 +167,10 @@ updated: YYYY-MM-DD
 
 - <bullets>
 
+## Related Notes
+
+- [[folder/note|Display Text]]
+
 ## References
 
 1. "<Verbatim quote from source (keep it short)>". (<source>, p. X) ^ref-...
@@ -156,3 +183,5 @@ updated: YYYY-MM-DD
 - Do the citations have correct page number and verbatim contents from the original source?
 - Are citations consistent (`[[#^ref-...|n]]`) and do they jump to the right spot?
 - Are reference block IDs stable and unique (`^ref-...`)?
+- If `## Related Notes` exists, do the wikilink targets exist (or at least resolve within the vault)?
+- Do in-body citation numbers `[[#^ref-...|n]]` match the current numbering in `## References`?
