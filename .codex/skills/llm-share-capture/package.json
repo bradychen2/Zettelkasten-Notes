@@ -1,0 +1,10 @@
+{
+  "name": "llm-share-capture",
+  "private": true,
+  "description": "Capture rendered text from public LLM share pages (Gemini/ChatGPT/etc.) via Playwright.",
+  "type": "module",
+  "dependencies": {
+    "playwright": "1.41.2"
+  }
+}
+
