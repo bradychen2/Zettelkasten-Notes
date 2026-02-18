@@ -36,12 +36,10 @@ The command prints an output directory like `/tmp/llm_share_capture.XXXXXX` cont
 - `title.txt` page title + final URL
 - `meta.json` capture metadata (timestamp, url)
 
-It also copies the key artifacts into your repo workspace for longer-lived tracing:
+Optional outputs:
 
-- `./tmp/llm_share_chat/{service}_{id}/body.txt`
-- `./tmp/llm_share_chat/{service}_{id}/title.txt` (if available)
-- `./tmp/llm_share_chat/{service}_{id}/source_url.txt`
-- `./tmp/llm_share_chat/{service}_{id}/original_capture_dir.txt`
+- Archive (enabled by default): `/tmp/llm_share_chat/<capture-id>/...` (override with `--archive-root` or `LLM_SHARE_ARCHIVE_ROOT`, disable with `--no-archive`)
+- Workspace copy (enabled by default): `./tmp/llm_share_chat/{service}-{id}/capture/...` under the current workspace root (disable with `--no-workspace-copy`, optional `--workspace-dir <dir>`)
 
 ## Notes / Failure Modes
 
@@ -56,3 +54,10 @@ It also copies the key artifacts into your repo workspace for longer-lived traci
 - `--out <dir>`: write into a specific directory instead of creating `/tmp/llm_share_capture.*`
 - `--wait-ms <ms>`: extra wait after initial load (default `5000`)
 - `--timeout-ms <ms>`: navigation timeout (default `60000`)
+- `--archive-root <dir>` / `--no-archive`
+- `--workspace-copy` / `--workspace-dir <dir>`
+
+`bootstrap.sh` supports (via env vars):
+
+- `LLM_SHARE_NPM_CACHE_DIR`: where npm writes its cache (default: a fresh `/tmp/llm_share_capture_npm_cache.*`)
+- `LLM_SHARE_PLAYWRIGHT_DOWNLOAD_HOSTS`: comma-separated Playwright download hosts to try (default: `,https://playwright-akamai.azureedge.net,https://playwright-verizon.azureedge.net`)

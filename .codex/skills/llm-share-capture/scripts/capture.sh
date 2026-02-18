@@ -16,15 +16,18 @@ set -euo pipefail
 
 # Resolve the skill's root directory no matter where you run this from.
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+# Keep the caller's working directory so we can choose sensible defaults later.
+CALLER_PWD="$(pwd)"
 
 usage() {
   cat <<'EOF'
 Usage:
-  capture.sh <url> [--out <dir>] [--wait-ms <ms>] [--timeout-ms <ms>]
+  capture.sh <url> [--out <dir>] [--wait-ms <ms>] [--timeout-ms <ms>] [--archive-root <dir>] [--no-archive] [--workspace-copy] [--no-workspace-copy] [--workspace-dir <dir>]
 
 Examples:
   capture.sh 'https://gemini.google.com/share/dea848184b75'
   capture.sh 'https://chat.openai.com/share/...' --wait-ms 8000
+  capture.sh 'https://gemini.google.com/share/...' --workspace-dir ./tmp/llm_share_chat
 EOF
 }
 
@@ -45,12 +48,28 @@ shift
 OUT_DIR=""
 WAIT_MS="5000"
 TIMEOUT_MS="60000"
+ARCHIVE_ROOT="${LLM_SHARE_ARCHIVE_ROOT:-/tmp/llm_share_chat}"
+DO_ARCHIVE="1"
+# Default to copying into the workspace, because the whole point of this tool is
+# to keep a traceable artifact under version-controlled paths (or at least under
+# the repo workspace) instead of relying on /tmp lifetime.
+#
+# Disable with:
+#   --no-workspace-copy
+# or:
+#   export LLM_SHARE_WORKSPACE_COPY=0
+DO_WORKSPACE_COPY="${LLM_SHARE_WORKSPACE_COPY:-1}"
+WORKSPACE_DIR="${LLM_SHARE_WORKSPACE_DIR:-}"
 
 # Parse optional flags.
 # We accept:
 #   --out <dir>        write artifacts into a specific directory
 #   --wait-ms <ms>     additional wait time after initial load
 #   --timeout-ms <ms>  navigation timeout
+#   --archive-root <d> archive root (default: /tmp/llm_share_chat or $LLM_SHARE_ARCHIVE_ROOT)
+#   --no-archive       disable /tmp archiving entirely
+#   --workspace-copy   copy body/title into a workspace folder (disabled by default)
+#   --workspace-dir <d>workspace destination root (default: $LLM_SHARE_WORKSPACE_DIR or current directory)
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --out)
@@ -63,6 +82,26 @@ while [[ $# -gt 0 ]]; do
       ;;
     --timeout-ms)
       TIMEOUT_MS="${2:-}"
+      shift 2
+      ;;
+    --archive-root)
+      ARCHIVE_ROOT="${2:-}"
+      shift 2
+      ;;
+    --no-archive)
+      DO_ARCHIVE="0"
+      shift 1
+      ;;
+    --workspace-copy)
+      DO_WORKSPACE_COPY="1"
+      shift 1
+      ;;
+    --no-workspace-copy)
+      DO_WORKSPACE_COPY="0"
+      shift 1
+      ;;
+    --workspace-dir)
+      WORKSPACE_DIR="${2:-}"
       shift 2
       ;;
     -h|--help)
@@ -104,55 +143,7 @@ node "$ROOT_DIR/scripts/capture.mjs" \
   --wait-ms "$WAIT_MS" \
   --timeout-ms "$TIMEOUT_MS"
 
-# Mandatory "archive" step for future source tracing:
-# Copy key artifacts into a stable directory: /tmp/llm_share_chat/<capture-id>/
-# We use the basename of OUT_DIR as the capture-id so you can trace it back easily.
-#
-# Example:
-#   OUT_DIR=/tmp/llm_share_capture.A1b2C3
-#   ARCHIVE_DIR=/tmp/llm_share_chat/llm_share_capture.A1b2C3
-#
-# If you passed --out, the basename of that directory is used.
-ARCHIVE_ROOT="/tmp/llm_share_chat"
-ARCHIVE_DIR="$ARCHIVE_ROOT/$(basename "$OUT_DIR")"
-
-if ! mkdir -p "$ARCHIVE_DIR"; then
-  echo "Warning: failed to create archive dir: $ARCHIVE_DIR" >&2
-  # Don't fail the whole capture if archiving isn't possible.
-  ARCHIVE_DIR=""
-fi
-
-# Avoid copying onto itself if the user picked --out inside ARCHIVE_ROOT.
-if [[ -n "$ARCHIVE_DIR" && "$ARCHIVE_DIR" != "$OUT_DIR" ]]; then
-  # Copy the minimum requested files.
-  # - -f overwrites existing files if you re-run a capture with the same OUT_DIR name.
-  # - We only copy files that exist to avoid failing the whole script on partial runs.
-  [[ -f "$OUT_DIR/body.txt" ]] && cp -f "$OUT_DIR/body.txt" "$ARCHIVE_DIR/body.txt"
-  [[ -f "$OUT_DIR/title.txt" ]] && cp -f "$OUT_DIR/title.txt" "$ARCHIVE_DIR/title.txt"
-
-  # Small pointer file so you can find the original capture directory later.
-  printf '%s\n' "$OUT_DIR" > "$ARCHIVE_DIR/original_capture_dir.txt"
-fi
-
-# Print where the archive lives (stderr so it doesn't break simple scripting
-# that expects stdout to contain the capture output).
-if [[ -n "$ARCHIVE_DIR" ]]; then
-  echo "Archived to: $ARCHIVE_DIR" >&2
-fi
-
-# Workspace copy step (requested):
-# Copy the extracted body into the current repo workspace so it can be kept/grepped
-# without relying on /tmp lifetime.
-#
-# Destination pattern:
-#   ./tmp/llm_share_chat/{llm-service}_{id}/body.txt
-#
-# - {llm-service} is inferred from the URL host (gemini/chatgpt/...)
-# - {id} is inferred from the last path segment (e.g. /share/<id>)
-WORKSPACE_ROOT="$(cd -- "$ROOT_DIR/../../.." && pwd)"
-WORKSPACE_CHAT_ROOT="$WORKSPACE_ROOT/tmp/llm_share_chat"
-
-# Parse URL -> host + id (best-effort).
+# Parse URL -> host + id (best-effort). Used for archive/workspace naming.
 URL_NO_FRAG="${URL%%#*}"
 URL_NO_QUERY="${URL_NO_FRAG%%\\?*}"
 URL_CLEAN="${URL_NO_QUERY%/}"
@@ -167,18 +158,71 @@ case "$URL_HOST" in
   *) SERVICE="${URL_HOST%%.*}" ;;
 esac
 
-WORKSPACE_DIR="$WORKSPACE_CHAT_ROOT/${SERVICE}_${URL_ID}"
+CAPTURE_ID="$(basename "$OUT_DIR")"
 
-if mkdir -p "$WORKSPACE_DIR"; then
-  if [[ -f "$OUT_DIR/body.txt" ]]; then
-    cp -f "$OUT_DIR/body.txt" "$WORKSPACE_DIR/body.txt"
-    printf '%s\n' "$URL" > "$WORKSPACE_DIR/source_url.txt"
-    printf '%s\n' "$OUT_DIR" > "$WORKSPACE_DIR/original_capture_dir.txt"
-    [[ -f "$OUT_DIR/title.txt" ]] && cp -f "$OUT_DIR/title.txt" "$WORKSPACE_DIR/title.txt"
+# Optional archive step: copy key artifacts to a stable temp directory.
+if [[ "$DO_ARCHIVE" == "1" && -n "${ARCHIVE_ROOT:-}" ]]; then
+  ARCHIVE_DIR="$ARCHIVE_ROOT/$CAPTURE_ID"
+  if mkdir -p "$ARCHIVE_DIR"; then
+    if [[ "$ARCHIVE_DIR" != "$OUT_DIR" ]]; then
+      [[ -f "$OUT_DIR/body.txt" ]] && cp -f "$OUT_DIR/body.txt" "$ARCHIVE_DIR/body.txt"
+      [[ -f "$OUT_DIR/title.txt" ]] && cp -f "$OUT_DIR/title.txt" "$ARCHIVE_DIR/title.txt"
+      printf '%s\n' "$OUT_DIR" > "$ARCHIVE_DIR/original_capture_dir.txt"
+      printf '%s\n' "$URL" > "$ARCHIVE_DIR/source_url.txt"
+    fi
+    echo "Archived to: $ARCHIVE_DIR" >&2
+  else
+    echo "Warning: failed to create archive dir: $ARCHIVE_DIR" >&2
   fi
-  echo "Copied to workspace: $WORKSPACE_DIR" >&2
-else
-  echo "Warning: failed to create workspace dir: $WORKSPACE_DIR" >&2
+fi
+
+# Optional workspace copy step:
+# Writes into: <workspace-dir>/{service}_{id}/...
+# Defaults:
+# - if --workspace-dir is not set and $LLM_SHARE_WORKSPACE_DIR is empty, uses
+#   ./tmp/llm_share_chat under the caller's current workspace root
+copy_dir() {
+  # Copy directory contents from $1 into $2 (creates $2 if needed).
+  #
+  # Prefer rsync when available because it's consistent across platforms.
+  # Fallback to cp -R -p for minimal environments.
+  local src="$1"
+  local dst="$2"
+
+  mkdir -p "$dst"
+
+  if command -v rsync >/dev/null 2>&1; then
+    rsync -a --delete "${src%/}/" "${dst%/}/"
+  else
+    # macOS cp doesn't support -a; use -R (recursive) + -p (preserve mode/times).
+    # We copy "contents" (src/.) rather than the directory itself.
+    rm -rf "$dst"
+    mkdir -p "$dst"
+    cp -R -p "$src/." "$dst/"
+  fi
+}
+
+if [[ "$DO_WORKSPACE_COPY" == "1" ]]; then
+  WORKSPACE_CHAT_ROOT="$WORKSPACE_DIR"
+  if [[ -z "${WORKSPACE_CHAT_ROOT:-}" ]]; then
+    WORKSPACE_CHAT_ROOT="$CALLER_PWD/tmp/llm_share_chat"
+  fi
+
+  WORKSPACE_DEST="$WORKSPACE_CHAT_ROOT/${SERVICE}-${URL_ID}"
+
+  if mkdir -p "$WORKSPACE_DEST"; then
+    # Copy the entire capture result directory into the workspace for future tracing.
+    # This keeps screenshots/requests/meta alongside the extracted body/title.
+    copy_dir "$OUT_DIR" "$WORKSPACE_DEST/capture"
+
+    # Add small pointer files for convenience (these are not part of the capture output).
+    printf '%s\n' "$URL" > "$WORKSPACE_DEST/source_url.txt"
+    printf '%s\n' "$OUT_DIR" > "$WORKSPACE_DEST/original_capture_dir.txt"
+
+    echo "Copied to workspace: $WORKSPACE_DEST" >&2
+  else
+    echo "Warning: failed to create workspace dir: $WORKSPACE_DEST" >&2
+  fi
 fi
 
 # Print the output directory last as a simple one-liner for humans.

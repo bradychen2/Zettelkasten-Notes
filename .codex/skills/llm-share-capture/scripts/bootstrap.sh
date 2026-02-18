@@ -24,7 +24,7 @@ Troubleshooting hints:
   - npm packages from registry.npmjs.org
   - browser binaries from a Playwright CDN mirror
 - If you see EACCES/permission errors, your environment may not allow writing to your home directory.
-  This script uses a local npm cache under this skill folder to avoid that, but the folder must be writable.
+  This script uses an npm cache under /tmp (or $LLM_SHARE_NPM_CACHE_DIR) to avoid writing to ~/.npm.
 EOF
 }
 
@@ -38,11 +38,21 @@ ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 # Run commands from the skill root so relative paths work.
 cd "$ROOT_DIR"
 
-# Use a local npm cache so installs don't depend on (or write to) ~/.npm.
+# Use an npm cache under /tmp so installs don't depend on (or write to) ~/.npm.
 # This prevents common failures like:
-# - "permission denied" writing /Users/<you>/.npm/_logs
+# - permission denied writing ~/.npm/_logs
 # - locked-down home directory in sandboxed environments
-NPM_CACHE_DIR="$ROOT_DIR/.npm-cache"
+#
+# Override with:
+#   export LLM_SHARE_NPM_CACHE_DIR=/some/writable/dir
+NPM_CACHE_DIR="${LLM_SHARE_NPM_CACHE_DIR:-}"
+if [[ -z "$NPM_CACHE_DIR" ]]; then
+  NPM_CACHE_DIR="$(mktemp -d /tmp/llm_share_capture_npm_cache.XXXXXX 2>/dev/null || true)"
+fi
+if [[ -z "${NPM_CACHE_DIR:-}" ]]; then
+  print_permission_hint
+  die "failed to create npm cache dir under /tmp"
+fi
 if ! mkdir -p "$NPM_CACHE_DIR"; then
   print_permission_hint
   die "failed to create npm cache dir: $NPM_CACHE_DIR"
@@ -85,13 +95,25 @@ install_chromium() {
   fi
 }
 
-if ! install_chromium ""; then
-  if ! install_chromium "https://playwright-akamai.azureedge.net"; then
-    if ! install_chromium "https://playwright-verizon.azureedge.net"; then
-      print_permission_hint
-      die "Playwright Chromium install failed"
-    fi
+# Allow callers to customize the mirror list.
+# - Empty entry means "default".
+# - Comma-separated list.
+# Example:
+#   export LLM_SHARE_PLAYWRIGHT_DOWNLOAD_HOSTS=",https://playwright-akamai.azureedge.net"
+DOWNLOAD_HOSTS="${LLM_SHARE_PLAYWRIGHT_DOWNLOAD_HOSTS:-,https://playwright-akamai.azureedge.net,https://playwright-verizon.azureedge.net}"
+
+installed="0"
+IFS=',' read -r -a host_list <<<"$DOWNLOAD_HOSTS"
+for h in "${host_list[@]}"; do
+  if install_chromium "$h"; then
+    installed="1"
+    break
   fi
+done
+
+if [[ "$installed" != "1" ]]; then
+  print_permission_hint
+  die "Playwright Chromium install failed"
 fi
 
 # Print a small confirmation so you know where things were installed.
