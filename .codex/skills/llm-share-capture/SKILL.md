@@ -46,6 +46,7 @@ Optional outputs:
 - If the share is not truly public, `body.txt` typically contains “Sign in” or a minimal shell and not the chat content.
 - Some sites do infinite network polling; this skill uses a fixed wait time (default `5000ms`) instead of `networkidle`.
 - For very long chats, `body.txt` can be large; the script writes to disk, not stdout.
+- If `bootstrap.sh` or `capture.sh` fails due to network restrictions or read/write permission issues (for example `EPERM`, `EACCES`, or inability to create `node_modules`), stop and ask the user to grant the required permissions. Do not modify skill scripts as a workaround.
 
 ## Parameters
 
