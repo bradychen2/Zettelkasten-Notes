@@ -7,7 +7,6 @@ tags:
   - resiliency
   - circuit-breaker
 ---
-
 # 什麼是斷路器（Circuit Breaker）模式？
 
 ## 定義
