@@ -110,16 +110,20 @@ node "$ROOT_DIR/scripts/capture.mjs" \
 #
 # Example:
 #   OUT_DIR=/tmp/llm_share_capture.A1b2C3
-#   ARCHIVE_DIR=/.tmp/llm_share_chat/llm_share_capture.A1b2C3
+#   ARCHIVE_DIR=/tmp/llm_share_chat/llm_share_capture.A1b2C3
 #
 # If you passed --out, the basename of that directory is used.
-ARCHIVE_ROOT="/.tmp/llm_share_chat"
+ARCHIVE_ROOT="/tmp/llm_share_chat"
 ARCHIVE_DIR="$ARCHIVE_ROOT/$(basename "$OUT_DIR")"
 
-mkdir -p "$ARCHIVE_DIR"
+if ! mkdir -p "$ARCHIVE_DIR"; then
+  echo "Warning: failed to create archive dir: $ARCHIVE_DIR" >&2
+  # Don't fail the whole capture if archiving isn't possible.
+  ARCHIVE_DIR=""
+fi
 
 # Avoid copying onto itself if the user picked --out inside ARCHIVE_ROOT.
-if [[ "$ARCHIVE_DIR" != "$OUT_DIR" ]]; then
+if [[ -n "$ARCHIVE_DIR" && "$ARCHIVE_DIR" != "$OUT_DIR" ]]; then
   # Copy the minimum requested files.
   # - -f overwrites existing files if you re-run a capture with the same OUT_DIR name.
   # - We only copy files that exist to avoid failing the whole script on partial runs.
@@ -132,7 +136,50 @@ fi
 
 # Print where the archive lives (stderr so it doesn't break simple scripting
 # that expects stdout to contain the capture output).
-echo "Archived to: $ARCHIVE_DIR" >&2
+if [[ -n "$ARCHIVE_DIR" ]]; then
+  echo "Archived to: $ARCHIVE_DIR" >&2
+fi
+
+# Workspace copy step (requested):
+# Copy the extracted body into the current repo workspace so it can be kept/grepped
+# without relying on /tmp lifetime.
+#
+# Destination pattern:
+#   ./tmp/llm_share_chat/{llm-service}_{id}/body.txt
+#
+# - {llm-service} is inferred from the URL host (gemini/chatgpt/...)
+# - {id} is inferred from the last path segment (e.g. /share/<id>)
+WORKSPACE_ROOT="$(cd -- "$ROOT_DIR/../../.." && pwd)"
+WORKSPACE_CHAT_ROOT="$WORKSPACE_ROOT/tmp/llm_share_chat"
+
+# Parse URL -> host + id (best-effort).
+URL_NO_FRAG="${URL%%#*}"
+URL_NO_QUERY="${URL_NO_FRAG%%\\?*}"
+URL_CLEAN="${URL_NO_QUERY%/}"
+URL_NO_PROTO="${URL_CLEAN#*://}"
+URL_HOST="${URL_NO_PROTO%%/*}"
+URL_ID="${URL_CLEAN##*/}"
+
+SERVICE="llm"
+case "$URL_HOST" in
+  gemini.google.com) SERVICE="gemini" ;;
+  chat.openai.com|chatgpt.com) SERVICE="chatgpt" ;;
+  *) SERVICE="${URL_HOST%%.*}" ;;
+esac
+
+WORKSPACE_DIR="$WORKSPACE_CHAT_ROOT/${SERVICE}_${URL_ID}"
+
+if mkdir -p "$WORKSPACE_DIR"; then
+  if [[ -f "$OUT_DIR/body.txt" ]]; then
+    cp -f "$OUT_DIR/body.txt" "$WORKSPACE_DIR/body.txt"
+    printf '%s\n' "$URL" > "$WORKSPACE_DIR/source_url.txt"
+    printf '%s\n' "$OUT_DIR" > "$WORKSPACE_DIR/original_capture_dir.txt"
+    [[ -f "$OUT_DIR/title.txt" ]] && cp -f "$OUT_DIR/title.txt" "$WORKSPACE_DIR/title.txt"
+  fi
+  echo "Copied to workspace: $WORKSPACE_DIR" >&2
+else
+  echo "Warning: failed to create workspace dir: $WORKSPACE_DIR" >&2
+fi
 
 # Print the output directory last as a simple one-liner for humans.
 # You can:

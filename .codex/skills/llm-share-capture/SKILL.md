@@ -36,6 +36,13 @@ The command prints an output directory like `/tmp/llm_share_capture.XXXXXX` cont
 - `title.txt` page title + final URL
 - `meta.json` capture metadata (timestamp, url)
 
+It also copies the key artifacts into your repo workspace for longer-lived tracing:
+
+- `./tmp/llm_share_chat/{service}_{id}/body.txt`
+- `./tmp/llm_share_chat/{service}_{id}/title.txt` (if available)
+- `./tmp/llm_share_chat/{service}_{id}/source_url.txt`
+- `./tmp/llm_share_chat/{service}_{id}/original_capture_dir.txt`
+
 ## Notes / Failure Modes
 
 - If the share is not truly public, `body.txt` typically contains “Sign in” or a minimal shell and not the chat content.
@@ -49,4 +56,3 @@ The command prints an output directory like `/tmp/llm_share_capture.XXXXXX` cont
 - `--out <dir>`: write into a specific directory instead of creating `/tmp/llm_share_capture.*`
 - `--wait-ms <ms>`: extra wait after initial load (default `5000`)
 - `--timeout-ms <ms>`: navigation timeout (default `60000`)
-
