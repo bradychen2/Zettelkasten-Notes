@@ -1,0 +1,60 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# macOS system files
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Secrets / credentials (do not commit)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.kdb
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+.netrc
+.npmrc
+.pypirc
+*credentials*
+*secret*
+
+# Obsidian (keep config, ignore local state/cache)
+.obsidian/workspace
+.obsidian/workspace.json
+.obsidian/cache/
+
+.codex/skills/**/node_modules/
+.codex/skills/**/.npm-cache/
+.codex/skills/**/package-lock.json
+
+tmp/llm_share_chat/
+node_modules/
