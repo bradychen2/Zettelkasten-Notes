@@ -48,8 +48,8 @@ updated: 2026-02-17
 
 ## Related Notes
 
-- [[llm_chat_learning_notes/sg/security-groups-least-privilege|Security Group 最小權限]]
-- [[llm_chat_learning_notes/three-tier-ha-architecture|三層式高可用架構]]
+- [[Sources/llm-chat/sg/security-groups-least-privilege|Security Group 最小權限]]
+- [[Sources/llm-chat/three-tier-ha-architecture|三層式高可用架構]]
 
 ## References
 

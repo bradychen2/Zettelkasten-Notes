@@ -32,8 +32,8 @@ updated: 2026-02-17
 
 ## Related Notes
 
-- [[llm_chat_learning_notes/vpc/cidr-basics|CIDR 基礎]]
-- [[llm_chat_learning_notes/vpc/vpc-subnet-strategy|Subnet 策略規劃]]
+- [[Sources/llm-chat/vpc/cidr-basics|CIDR 基礎]]
+- [[Sources/llm-chat/vpc/vpc-subnet-strategy|Subnet 策略規劃]]
 
 ## References
 

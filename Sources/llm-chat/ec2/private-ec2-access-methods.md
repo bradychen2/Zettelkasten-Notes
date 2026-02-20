@@ -41,10 +41,10 @@ updated: 2026-02-17
 
 ## Related Notes
 
-- [[llm_chat_learning_notes/ec2/ssh-agent-forwarding-troubleshooting|SSH Agent Forwarding 與排錯]]
-- [[llm_chat_learning_notes/sg/security-groups-least-privilege|Security Group 最小權限]]
-- [[llm_chat_learning_notes/vpc/public-private-subnets-routing|Public vs Private Subnet 與路由]]
-- [[llm_chat_learning_notes/vpc/nat-gateway-flow|NAT Gateway 流程]]
+- [[Sources/llm-chat/ec2/ssh-agent-forwarding-troubleshooting|SSH Agent Forwarding 與排錯]]
+- [[Sources/llm-chat/sg/security-groups-least-privilege|Security Group 最小權限]]
+- [[Sources/llm-chat/vpc/public-private-subnets-routing|Public vs Private Subnet 與路由]]
+- [[Sources/llm-chat/vpc/nat-gateway-flow|NAT Gateway 流程]]
 
 ## References
 

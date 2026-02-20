@@ -58,8 +58,8 @@ updated: 2026-02-17
 
 ## Related Notes
 
-- [[llm_chat_learning_notes/ec2/private-ec2-access-methods|Private EC2 的登入方式]]
-- [[llm_chat_learning_notes/sg/security-groups-least-privilege|Security Group 最小權限]]
+- [[Sources/llm-chat/ec2/private-ec2-access-methods|Private EC2 的登入方式]]
+- [[Sources/llm-chat/sg/security-groups-least-privilege|Security Group 最小權限]]
 
 ## References
 
