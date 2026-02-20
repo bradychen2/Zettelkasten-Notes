@@ -47,10 +47,10 @@ updated: 2026-02-17
 
 ## Related Notes
 
-- [[llm_chat_learning_notes/vpc/public-private-subnets-routing|Public vs Private Subnet 與路由]]
-- [[llm_chat_learning_notes/vpc/vpc-subnet-strategy|Subnet 策略規劃]]
-- [[llm_chat_learning_notes/ec2/private-ec2-access-methods|Private EC2 的登入方式]]
-- [[llm_chat_learning_notes/three-tier-ha-architecture|三層式高可用架構]]
+- [[Sources/llm-chat/vpc/public-private-subnets-routing|Public vs Private Subnet 與路由]]
+- [[Sources/llm-chat/vpc/vpc-subnet-strategy|Subnet 策略規劃]]
+- [[Sources/llm-chat/ec2/private-ec2-access-methods|Private EC2 的登入方式]]
+- [[Sources/llm-chat/three-tier-ha-architecture|三層式高可用架構]]
 
 ## References
 

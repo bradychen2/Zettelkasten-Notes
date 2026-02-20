@@ -57,10 +57,10 @@ updated: 2026-02-17
 
 ## Related Notes
 
-- [[llm_chat_learning_notes/vpc/cidr-basics|CIDR 基礎]]
-- [[llm_chat_learning_notes/vpc/public-private-subnets-routing|Public vs Private Subnet 與路由]]
-- [[llm_chat_learning_notes/vpc/nat-gateway-flow|NAT Gateway 流程]]
-- [[llm_chat_learning_notes/three-tier-ha-architecture|三層式高可用架構]]
+- [[Sources/llm-chat/vpc/cidr-basics|CIDR 基礎]]
+- [[Sources/llm-chat/vpc/public-private-subnets-routing|Public vs Private Subnet 與路由]]
+- [[Sources/llm-chat/vpc/nat-gateway-flow|NAT Gateway 流程]]
+- [[Sources/llm-chat/three-tier-ha-architecture|三層式高可用架構]]
 
 ## References
 
