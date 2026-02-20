@@ -1,12 +1,38 @@
-# SOP: Find and remove unwanted paths from Git history (macOS)
+---
+title: "SOP - Clean unwanted paths from Git history"
+tags:
+  - sop
+  - git
+  - security
+aliases:
+  - "Remove unwanted paths from git history"
+  - "Remove unwanted commits for folders"
+created: 2026-02-20
+---
+
+# SOP - Clean unwanted paths from Git history (macOS)
 
 Use this when you accidentally committed files you never want in history (examples: `.obsidian/`, `tmp/`, `.env`, keys).
 
-## Safety notes
+> [!danger] History rewrite
+> This rewrites history (commit hashes change). Coordinate with teammates before force-pushing.
 
-- This rewrites history (commit hashes change).
-- Coordinate with teammates before force-pushing.
-- If secrets were committed, rotate them even after cleaning history.
+> [!warning] Secrets
+> If secrets were committed, rotate them even after cleaning history.
+
+## Quick checklist
+
+- [ ] Identify unwanted paths and branch
+- [ ] Stop tracking going forward (`.gitignore` + `git rm --cached`)
+- [ ] Rewrite history to remove paths everywhere
+- [ ] Prune old refs/objects
+- [ ] Verify paths are gone
+- [ ] Force-push and coordinate (if remote)
+
+## Inputs
+
+- Unwanted paths: `.obsidian/`, `tmp/` (edit as needed)
+- Target: current branch, or `--all` history
 
 ## 1) Find commits that touched a path
 
