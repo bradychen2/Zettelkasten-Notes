@@ -1,0 +1,65 @@
+{
+  "skill_name": "llm-share-capture",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Here's a Gemini share link I want to archive: https://gemini.google.com/share/dea848184b75 — can you capture the full chat content and save it?",
+      "expected_output": "Claude should run bootstrap.sh to set up Playwright, then run capture.sh with the URL. It should report the output directory (/tmp/llm_share_capture.*) and list the saved files (body.txt, page.png, requests.txt, title.txt, meta.json).",
+      "files": [],
+      "assertions": [
+        {
+          "id": "uses_bootstrap_sh",
+          "description": "Response includes running bootstrap.sh to set up Playwright/Chromium"
+        },
+        {
+          "id": "uses_capture_sh_with_url",
+          "description": "Response includes running capture.sh with the Gemini share URL as argument"
+        },
+        {
+          "id": "mentions_output_files",
+          "description": "Response mentions expected output artifacts (body.txt, page.png, or /tmp output directory)"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I have this ChatGPT shared conversation I'd like to save: https://chatgpt.com/share/e/abc12345def00000000000000 — grab the text and screenshot for me",
+      "expected_output": "Claude should run bootstrap.sh then capture.sh with the ChatGPT share URL. Should mention the output artifacts and where they're saved.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "uses_bootstrap_sh",
+          "description": "Response includes running bootstrap.sh to set up Playwright/Chromium"
+        },
+        {
+          "id": "uses_capture_sh_with_url",
+          "description": "Response includes running capture.sh with the ChatGPT share URL as argument"
+        },
+        {
+          "id": "mentions_screenshot",
+          "description": "Response specifically mentions the screenshot output (page.png) since user asked for it"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "save this shared chat to my notes: https://gemini.google.com/share/f2c3d4e5a6b7",
+      "expected_output": "Claude should recognize this as an LLM share URL, run bootstrap.sh and capture.sh, and report the capture directory and key output files.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "uses_bootstrap_sh",
+          "description": "Response includes running bootstrap.sh (even for a casual, short request)"
+        },
+        {
+          "id": "uses_capture_sh_with_url",
+          "description": "Response includes running capture.sh with the share URL"
+        },
+        {
+          "id": "no_webfetch_fallback",
+          "description": "Response does NOT suggest using WebFetch/curl as the approach (those can't render JS-heavy share pages)"
+        }
+      ]
+    }
+  ]
+}
